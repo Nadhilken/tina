@@ -245,16 +245,14 @@
         }
 
         .header-gif {
-            max-width: 100%;
+            max-width: 400px;
             height: auto;
-            max-height: 400px;
-            display: flex;
+            max-height: 300px;
+            display: block;
             margin: 0 auto 30px;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
-            align-items: center;
-            justify-content: center;
         }
 
         .header-gif:hover {
@@ -265,7 +263,6 @@
         .header-gif.listening {
             border: 3px solid #ff0000;
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52) !important;
         }
 
         .logo {
@@ -350,7 +347,7 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            max-height: 150px;
+            max-height: 100px;
             width: auto;
             z-index: 1200;
         }
@@ -373,17 +370,15 @@
     </style>
 </head>
 <body>
-    <div class="logo" style="background: #1a73e8; color: white; padding: 10px 20px; border-radius: 4px; display: inline-block; font-weight: bold;">I_ROBOTICS</div>
+    <img src="static/images/I_ROBOTICS_logo.png" alt="I_ROBOTICS Logo" class="logo">
 
     <div class="container">
         <button class="menu-button" id="menuButton" aria-label="Open Menu">☰</button>
         
-        <div class="header-gif" style="background: linear-gradient(45deg, #1a73e8, #4285f4); width: 300px; height: 200px; margin: 0 auto; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; transition: opacity 0.3s ease;">
-            Click here to start listening
-        </div>
+        <img src="static/images/your-gif.gif" alt="Voice Activation GIF" class="header-gif">
         
         <div class="voice-section">
-            <h2>HI,HOW CAN I HELP YOU?</h2>
+            <h2>HI, HOW CAN I HELP YOU?</h2>
             <p id="transcript">Click the GIF above to start listening and ask your question...</p>
             <p id="response">Answer will appear here...</p>
         </div>
@@ -416,7 +411,7 @@
         </div>
 
         <div class="media-modal" id="mediaModal">
-            <div class="modal-logo" style="background: #1a73e8; color: white; padding: 10px 20px; border-radius: 4px; display: inline-block; font-weight: bold; margin-bottom: 20px;">I_ROBOTICS</div>
+            <img src="static/images/I_ROBOTICS_logo.png" alt="I_ROBOTICS Modal Logo" class="modal-logo">
             <button class="back-button" id="backButton" aria-label="Back">←</button>
             <div class="media-container">
                 <video id="videoPlayer" controls autoplay loop>
@@ -487,7 +482,6 @@
         function renderQaList() {
             qaItems.innerHTML = '';
             qas.forEach((qa) => {
-                // Skip rendering if qa lacks required fields
                 if (!qa.id || !qa.question || !qa.answer) {
                     console.warn('Skipping invalid Q&A entry:', qa);
                     return;
