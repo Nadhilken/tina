@@ -8,7 +8,13 @@ import uuid
 app = Flask(__name__)
 
 # Setup logging
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, 
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler()
+    ]
+)
 logger = logging.getLogger(__name__)
 
 # File to store questions and answers
@@ -71,11 +77,26 @@ def save_qa_data(data):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        logger.info("Rendering index.html")
+        return render_template('index.html')
+    except Exception as e:
+        logger.error(f"Error rendering index.html: {str(e)}")
+        return f"Error: {str(e)}", 500
 
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'healthy', 'message': 'Voice Q&A App is running'})
+
+@app.errorhandler(404)
+def not_found_error(error):
+    logger.warning(f"404 error: {request.url}")
+    return jsonify({'error': 'Not found'}), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    logger.error(f"500 error: {str(error)}")
+    return jsonify({'error': 'Internal server error'}), 500
 
 @app.route('/add_qa', methods=['POST'])
 def add_qa():
