@@ -1,0 +1,360 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #1e1e1e; /* Dark background */
+    margin: 0;
+    padding: 0;
+    color: #e0e0e0; /* Light text for readability */
+}
+
+.container {
+    max-width: 800px;
+    margin: 100px auto 0; /* Retain margin-top to move content down */
+    padding: 20px;
+    text-align: center;
+    background-color: #2a2a2a; /* Darker container background */
+    border-radius: 8px;
+}
+
+.voice-section {
+    background: #333333; /* Dark background for voice section */
+    padding: 20px;
+    margin: 20px 0;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Darker shadow */
+}
+
+input[type="text"] {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #555555; /* Dark border */
+    border-radius: 4px;
+    background-color: #444444; /* Dark input background */
+    color: #e0e0e0; /* Light text */
+}
+
+button {
+    padding: 10px 20px;
+    background-color: #1a73e8; /* Dark blue button */
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #1557b0; /* Darker blue on hover */
+}
+
+#transcript, #response, #formFeedback, #mediaFeedback {
+    margin: 10px 0;
+    font-size: 1.1em;
+    color: #e0e0e0; /* Light text */
+}
+
+/* Menu button styles */
+.menu-button {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #e0e0e0; /* Light icon color */
+    z-index: 1000;
+}
+
+.menu-button:hover {
+    color: #1a73e8; /* Blue on hover */
+}
+
+/* Dropdown menu styles */
+.qa-menu {
+    position: fixed;
+    top: 60px; /* Position below the menu button */
+    right: 20px;
+    width: 300px;
+    max-height: 80vh; /* Limit height to 80% of viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
+    background: #333333; /* Dark background for menu */
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Darker shadow */
+    display: none; /* Hidden by default */
+    z-index: 900;
+}
+
+.qa-menu.open {
+    display: block; /* Show when open */
+}
+
+.qa-menu h2, .qa-menu h3 {
+    color: #e0e0e0; /* Light text */
+    margin-top: 20px;
+    font-size: 1.2em;
+}
+
+.qa-menu h3 {
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.qa-menu form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.qa-menu input[type="text"] {
+    width: calc(100% - 22px); /* Adjust for padding and border */
+}
+
+/* Edit Q&A Button */
+.edit-qa-button {
+    width: 100%;
+    margin: 10px 0;
+    background-color: #1a73e8; /* Match other buttons */
+    color: #ffffff;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.edit-qa-button:hover {
+    background-color: #1557b0; /* Darker blue on hover */
+}
+
+/* Q&A List */
+.qa-list {
+    margin-top: 20px;
+    background: #444444; /* Slightly lighter background */
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.qa-item {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    padding: 10px;
+    background: #555555; /* Slightly darker than list */
+    border-radius: 4px;
+}
+
+.qa-item span {
+    text-align: left;
+    color: #e0e0e0;
+    margin-bottom: 5px;
+}
+
+.qa-item .qa-actions {
+    display: flex;
+    gap: 5px;
+}
+
+.qa-item input[type="text"] {
+    width: calc(100% - 22px); /* Match form inputs */
+    margin: 5px 0;
+}
+
+.qa-item button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+/* Edit and Delete buttons */
+.qa-item .edit-qa {
+    background-color: #1a73e8; /* Blue for edit */
+}
+
+.qa-item .edit-qa:hover {
+    background-color: #1557b0;
+}
+
+.qa-item .delete-qa {
+    background-color: #d32f2f; /* Red for delete */
+}
+
+.qa-item .delete-qa:hover {
+    background-color: #b71c1c;
+}
+
+.qa-item .save-qa, .qa-item .cancel-qa {
+    background-color: #4caf50; /* Green for save */
+}
+
+.qa-item .save-qa:hover, .qa-item .cancel-qa:hover {
+    background-color: #388e3c; /* Darker green on hover */
+}
+
+.qa-item .cancel-qa {
+    background-color: #757575; /* Gray for cancel */
+}
+
+.qa-item .cancel-qa:hover {
+    background-color: #616161;
+}
+
+/* Drag and drop styles */
+.drop-area {
+    border: 2px dashed #555555;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    background: #444444;
+    border-radius: 4px;
+}
+
+.drop-area.dragover {
+    border-color: #1a73e8;
+    background: #555555;
+}
+
+/* Media list styles */
+.media-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+    padding: 5px;
+    background: #444444; /* Slightly lighter background */
+    border-radius: 4px;
+}
+
+.media-item span {
+    flex: 1;
+    text-align: left;
+    padding-left: 10px;
+}
+
+.media-item button {
+    padding: 5px 10px;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+.media-item .delete-media {
+    background-color: #d32f2f; /* Red for delete */
+}
+
+.media-item .delete-media:hover {
+    background-color: #b71c1c; /* Darker red on hover */
+}
+
+/* GIF image styles */
+.header-gif {
+    max-width: 100%;
+    height: auto;
+    max-height: 400px; /* Retain larger GIF size */
+    display: block;
+    margin: 0 auto 30px; /* Retain spacing */
+    border-radius: 4px; /* Retain rounded corners */
+}
+
+/* Logo styles */
+.logo {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    max-height: 200px; /* Retain larger logo size */
+    width: auto;
+    z-index: 1000;
+}
+
+/* Modal styles */
+.media-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* Dark semi-transparent background */
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1100;
+}
+
+.media-modal.open {
+    display: flex;
+}
+
+.media-container {
+    max-width: 80%;
+    max-height: 80%;
+    position: relative;
+}
+
+#videoPlayer {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.slideshow {
+    width: 100%;
+    height: auto;
+    text-align: center;
+}
+
+#slideshowImage {
+    max-width: 100%;
+    max-height: 60vh; /* Limit height to viewport */
+    border-radius: 8px;
+}
+
+.slide-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.5);
+    color: #e0e0e0;
+    font-size: 24px;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+}
+
+#prevSlide {
+    left: 10px;
+}
+
+#nextSlide {
+    right: 10px;
+}
+
+.slide-nav:hover {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.hidden {
+    display: none;
+}
+
+.modal-logo {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    max-height: 150px; /* Match main logo size */
+    width: auto;
+    z-index: 1200;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #e0e0e0; /* White for visibility */
+    cursor: pointer;
+    z-index: 1200;
+}
+
+.back-button:hover {
+    color: #1a73e8; /* Blue on hover */
+}
