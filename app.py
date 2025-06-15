@@ -78,15 +78,134 @@ def save_qa_data(data):
 @app.route('/')
 def index():
     try:
-        logger.info("Rendering index.html")
-        return render_template('index.html')
+        logger.info("Attempting to render index.html")
+        # First check if templates directory exists
+        import os
+        templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+        index_file = os.path.join(templates_dir, 'index.html')
+        logger.info(f"Templates directory: {templates_dir}")
+        logger.info(f"Templates directory exists: {os.path.exists(templates_dir)}")
+        logger.info(f"Index file exists: {os.path.exists(index_file)}")
+        
+        if os.path.exists(index_file):
+            return render_template('index.html')
+        else:
+            return """
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Voice Q&A Website</title>
+                <style>
+                    body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
+                    .container { max-width: 800px; margin: 0 auto; }
+                    .voice-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 8px; }
+                    .header-gif { background: linear-gradient(45deg, #1a73e8, #4285f4); width: 300px; height: 200px; margin: 0 auto 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; }
+                    .header-gif:hover { opacity: 0.8; }
+                    .header-gif.listening { border: 3px solid #ff0000; box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); background: linear-gradient(45deg, #ff6b6b, #ee5a52) !important; }
+                </style>
+            </head>
+            <body>
+                <div class="container">
+                    <div class="header-gif" id="headerGif">Click here to start listening</div>
+                    <div class="voice-section">
+                        <h2>HI, HOW CAN I HELP YOU?</h2>
+                        <p id="transcript">Click the box above to start listening and ask your question...</p>
+                        <p id="response">Answer will appear here...</p>
+                    </div>
+                </div>
+                
+                <script>
+                    const headerGif = document.getElementById('headerGif');
+                    const transcript = document.getElementById('transcript');
+                    const response = document.getElementById('response');
+                    let isListening = false;
+                    let recognition;
+
+                    if (window.SpeechRecognition || window.webkitSpeechRecognition) {
+                        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                        recognition.lang = 'en-US';
+                        recognition.interimResults = false;
+
+                        headerGif.addEventListener('click', () => {
+                            if (!isListening) {
+                                try {
+                                    recognition.start();
+                                    transcript.textContent = 'Listening for your question...';
+                                    isListening = true;
+                                    headerGif.classList.add('listening');
+                                } catch (error) {
+                                    transcript.textContent = 'Error starting speech recognition: ' + error.message;
+                                    isListening = false;
+                                    headerGif.classList.remove('listening');
+                                }
+                            } else {
+                                recognition.stop();
+                                transcript.textContent = 'Click the box above to start listening...';
+                                isListening = false;
+                                headerGif.classList.remove('listening');
+                            }
+                        });
+
+                        recognition.onresult = async (event) => {
+                            const question = event.results[0][0].transcript;
+                            transcript.textContent = `You asked: ${question}`;
+                            isListening = false;
+                            headerGif.classList.remove('listening');
+                            
+                            try {
+                                const res = await fetch('/get_answer', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ question })
+                                });
+                                const data = await res.json();
+                                response.textContent = `Answer: ${data.answer}`;
+                                
+                                const utterance = new SpeechSynthesisUtterance(data.answer);
+                                utterance.lang = 'en-US';
+                                window.speechSynthesis.speak(utterance);
+                            } catch (error) {
+                                response.textContent = 'Error getting answer. Please try again.';
+                            }
+                        };
+
+                        recognition.onend = () => {
+                            isListening = false;
+                            headerGif.classList.remove('listening');
+                        };
+
+                        recognition.onerror = (event) => {
+                            transcript.textContent = 'Error occurred in recognition: ' + event.error;
+                            isListening = false;
+                            headerGif.classList.remove('listening');
+                        };
+                    } else {
+                        transcript.textContent = 'Speech recognition is not supported in this browser. Please use Chrome or Edge.';
+                        headerGif.style.cursor = 'not-allowed';
+                        headerGif.style.opacity = '0.5';
+                    }
+                </script>
+            </body>
+            </html>
+            """
     except Exception as e:
-        logger.error(f"Error rendering index.html: {str(e)}")
+        logger.error(f"Error in index route: {str(e)}")
         return f"Error: {str(e)}", 500
 
 @app.route('/health')
 def health_check():
     return jsonify({'status': 'healthy', 'message': 'Voice Q&A App is running'})
+
+@app.route('/test')
+def test_page():
+    try:
+        logger.info("Rendering test.html")
+        return render_template('test.html')
+    except Exception as e:
+        logger.error(f"Error rendering test.html: {str(e)}")
+        return f"Error: {str(e)}", 500
 
 @app.errorhandler(404)
 def not_found_error(error):
