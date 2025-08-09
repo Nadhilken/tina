@@ -4,6 +4,11 @@ import os
 import logging
 from werkzeug.utils import secure_filename
 import uuid
+from dotenv import load_dotenv
+import requests
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -79,8 +84,6 @@ def save_qa_data(data):
 def index():
     try:
         logger.info("Attempting to render index.html")
-        # First check if templates directory exists
-        import os
         templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
         index_file = os.path.join(templates_dir, 'index.html')
         logger.info(f"Templates directory: {templates_dir}")
@@ -300,16 +303,60 @@ def delete_qa(qa_id):
 @app.route('/get_answer', methods=['POST'])
 def get_answer():
     try:
-        question = request.json.get('question', '').lower().strip()
+        data = request.json
+        question = data.get('question', '').lower().strip()
+        context = data.get('context', {})
+        max_tokens = data.get('max_tokens', 15)
+        
+        # Load custom Q&A data
         qa_data = load_qa_data()
         
+        # Check for exact match in custom Q&A
         for qa in qa_data:
             if qa['question'] == question:
-                logger.info(f"Found answer for question: {question}")
+                logger.info(f"Found answer for question in custom Q&A: {question}")
                 return jsonify({'answer': qa['answer']})
         
-        logger.warning(f"No answer found for question: {question}")
-        return jsonify({'answer': 'Sorry, I don\'t know the answer to that question.'})
+        # If no match, query Perplexity API
+        api_key = os.getenv('PERPLEXITY_API_KEY')
+        if not api_key:
+            logger.error("Perplexity API key not configured")
+            return jsonify({'answer': 'Error: Perplexity API key not configured.'}), 500
+
+        try:
+            response = requests.post(
+                'https://api.perplexity.ai/chat/completions',
+                headers={
+                    'Authorization': f'Bearer {api_key}',
+                    'Content-Type': 'application/json'
+                },
+                json={
+                    'model': 'mistral-7b-instruct',
+                    'messages': [
+                        {
+                            'role': 'system',
+                            'content': (
+                                f"You are {context.get('name', 'Teena')}, a {context.get('role', 'Personal AI robot')} "
+                                f"created by {context.get('creator', 'I Robotics')} in {context.get('location', 'Coimbatore')}. "
+                                f"Answer questions based on the following chat history: {json.dumps(context.get('chat_history', []))}. "
+                                f"Keep responses concise, up to {max_tokens} tokens."
+                            )
+                        },
+                        {
+                            'role': 'user',
+                            'content': question
+                        }
+                    ],
+                    'max_tokens': max_tokens
+                }
+            )
+            response.raise_for_status()
+            answer = response.json()['choices'][0]['message']['content']
+            logger.info(f"Perplexity API response for question '{question}': {answer}")
+            return jsonify({'answer': answer})
+        except Exception as e:
+            logger.error(f"Error with Perplexity API: {str(e)}")
+            return jsonify({'answer': 'Sorry, I couldn\'t fetch an answer from the API.'})
     except Exception as e:
         logger.error(f"Error in get_answer: {str(e)}")
         return jsonify({'answer': 'An error occurred while processing your request.'})
