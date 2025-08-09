@@ -14,21 +14,34 @@
         }
 
         .container {
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
+            max-width: 100%;
+            margin: 0;
+            padding: 10px;
             text-align: center;
             background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            height: 90vh;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+        
+        @media (min-width: 768px) {
+            .container {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                min-height: auto;
+                height: 90vh;
+            }
         }
 
         .header {
-            margin-bottom: 30px;
+            margin: 10px 0;
             position: relative;
+            text-align: center;
+            padding: 10px 0;
         }
         
         .menu-button {
@@ -50,17 +63,29 @@
 
         .logo {
             max-width: 200px;
-            margin-bottom: 20px;
+            height: auto;
+            margin: 0 auto;
+            display: block;
         }
 
         .assistant-gif {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 6/5;
+            border-radius: 20px;
+            object-fit: cover;
+            margin: 10px auto;
+            display: block;
             cursor: pointer;
-            margin: 20px auto;
-            transition: all 0.3s ease;
-            border: 3px solid transparent;
+            transition: transform 0.3s ease;
+            border: 3px solid #1a73e8;
+        }
+        
+        @media (max-width: 400px) {
+            .assistant-gif {
+                max-width: 250px;
+            }
         }
 
         .assistant-gif.listening {
@@ -175,16 +200,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="static/images/logo.png" alt="I Robotics Logo" class="logo">
-            <h1>Teena - Your Personal Robot Assistant</h1>
-            <p>Created by I Robotics, Coimbatore - Developing the Future of Robotics</p>
+            <img src="https://raw.githubusercontent.com/Nadhilken/tina/refs/heads/main/static/images/I_ROBOTICS_logo.png" alt="I Robotics Logo" class="logo">
             <button class="menu-button" id="menuButton">⚙️</button>
         </div>
 
         <div class="chat-container">
             <div class="status">
-                <img src="static/images/assistant.gif" alt="Teena" class="assistant-gif" id="assistantGif">
-                <div id="transcript">Click the assistant to start speaking...</div>
+                <img src="https://raw.githubusercontent.com/Nadhilken/tina/refs/heads/main/static/images/your-gif.gif" alt="Teena" class="assistant-gif" id="assistantGif">
+                <div id="transcript"></div>
                 <div id="response"></div>
             </div>
         </div>
@@ -229,14 +252,14 @@
         
         // Teena's system prompt and context
         const SYSTEM_PROMPT = `You are Teena, a friendly robot assistant created by I Robotics, a company in Coimbatore that develops robots. 
-        You should respond concisely in about 15 tokens. Keep your responses short, friendly, and to the point. 
+        You must respond based only on 15 tokens. Keep your responses short, friendly, and to the point. 
         Your responses should be helpful and professional, representing I Robotics.
         
         Context:
         - You are a robot named Teena
         - Created by I Robotics, a company in Coimbatore
         - You are a personal robot assistant
-        - Keep responses brief (around 15 tokens)
+        - Responses must be limited to 15 tokens
         - Be helpful, friendly, and professional`;
 
         // Toggle settings panel
@@ -307,15 +330,15 @@
             recognition.onstart = () => {
                 isListening = true;
                 transcript.textContent = 'Listening...';
-                assistantGif.src = 'static/images/listening.gif';
+                assistantGif.classList.add('listening');
             };
             
             recognition.onend = () => {
                 isListening = false;
+                assistantGif.classList.remove('listening');
                 if (transcript.textContent === 'Listening...') {
                     transcript.textContent = 'Click the assistant to start speaking...';
                 }
-                assistantGif.src = 'static/images/assistant.gif';
             };
 
             recognition.onresult = async (event) => {
@@ -331,12 +354,6 @@
                     console.error('Error:', error);
                     response.textContent = 'Sorry, I encountered an error. Please try again.';
                 }
-            };
-
-            recognition.onend = () => {
-                isListening = false;
-                assistantGif.classList.remove('listening');
-                startBtn.innerHTML = '<span>Start Listening</span>';
             };
 
             recognition.onerror = (event) => {
@@ -366,7 +383,7 @@
         // Toggle listening state
         function toggleListening() {
             if (!apiKey) {
-                transcript.textContent = 'Please set your Gemini API key in settings first.';
+                transcript.textContent = '';
                 settingsPanel.style.display = 'block';
                 return;
             }
@@ -425,7 +442,7 @@
             };
             chatHistory.push(chatMessage);
             
-            // Keep only the last 20 messages to maintain context without using too many tokens
+            // Keep only the last 20 messages
             if (chatHistory.length > 20) {
                 chatHistory = chatHistory.slice(-20);
             }
@@ -473,7 +490,7 @@
                             temperature: 0.7,
                             topK: 40,
                             topP: 0.95,
-                            maxOutputTokens: 50, // Limit to about 15 words
+                            maxOutputTokens: 15, // Set to exactly 15 tokens
                         },
                         safetySettings: [
                             {
