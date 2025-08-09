@@ -378,7 +378,7 @@
         <img src="static/images/your-gif.gif" alt="Voice Activation GIF" class="header-gif">
         
         <div class="voice-section">
-            <h2>HI, HOW CAN I HELP YOU?</h2>
+            <h2>HI, HOW CAN TEENA HELP YOU?</h2>
             <p id="transcript">Click the GIF above to start listening and ask your question...</p>
             <p id="response">Answer will appear here...</p>
         </div>
@@ -458,6 +458,14 @@
         let slideshowInterval = null;
         let currentSlideIndex = 0;
         let isListening = false;
+
+        // Predefined context for Teena
+        const robotContext = {
+            name: "Teena",
+            creator: "I Robotics",
+            location: "Coimbatore",
+            role: "Personal AI robot"
+        };
 
         async function loadQAs() {
             try {
@@ -966,14 +974,22 @@
                 headerGif.classList.remove('listening');
                 console.log('Recognized question:', question);
                 try {
-                    const res = await fetch('/get_answer', {
+                    const res = await fetch('/perplexity_answer', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ question })
+                        body: JSON.stringify({ 
+                            question,
+                            context: {
+                                ...robotContext,
+                                chat_history: qas.map(qa => ({ question: qa.question, answer: qa.answer }))
+                            },
+                            max_tokens: 15
+                        })
                     });
                     const data = await res.json();
-                    response.textContent = `Answer: ${data.answer}`;
-                    const utterance = new SpeechSynthesisUtterance(data.answer);
+                    const answer = data.answer || 'No relevant answer found.';
+                    response.textContent = `Answer: ${answer}`;
+                    const utterance = new SpeechSynthesisUtterance(answer);
                     utterance.lang = 'en-US';
                     if (window.speechSynthesis.getVoices().length === 0) {
                         window.speechSynthesis.onvoiceschanged = () => {
@@ -989,7 +1005,7 @@
                         window.speechSynthesis.speak(utterance);
                     }
                 } catch (error) {
-                    console.error('Error getting answer:', error);
+                    console.error('Error getting answer from Perplexity:', error);
                     response.textContent = 'Error getting answer. Please try again.';
                 }
             };
