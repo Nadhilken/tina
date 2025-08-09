@@ -974,7 +974,7 @@
                 headerGif.classList.remove('listening');
                 console.log('Recognized question:', question);
                 try {
-                    const res = await fetch('/perplexity_answer', {
+                    const res = await fetch('/get_answer', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
@@ -1005,7 +1005,7 @@
                         window.speechSynthesis.speak(utterance);
                     }
                 } catch (error) {
-                    console.error('Error getting answer from Perplexity:', error);
+                    console.error('Error getting answer:', error);
                     response.textContent = 'Error getting answer. Please try again.';
                 }
             };
